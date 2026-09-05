@@ -1,0 +1,6 @@
+@ERPInfinity.YarpGateway_HostAddress = http://localhost:5206
+
+GET {{ERPInfinity.YarpGateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

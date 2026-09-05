@@ -1,0 +1,97 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/ERPInfinity.BuildingBlocks.CQRS/ERPInfinity.BuildingBlocks.CQRS.csproj" />
+    <Project Path="src/BuildingBlocks/ERPInfinity.BuildingBlocks.Logging/ERPInfinity.BuildingBlocks.Logging.csproj" />
+    <Project Path="src/BuildingBlocks/ERPInfinity.BuildingBlocks.Messaging/ERPInfinity.BuildingBlocks.Messaging.csproj" />
+    <Project Path="src/BuildingBlocks/ERPInfinity.BuildingBlocks.Persistence/ERPInfinity.BuildingBlocks.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/ERPInfinity.YarpGateway/ERPInfinity.YarpGateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/Customer/">
+    <Project Path="src/Services/Customer/ERPInfinity.Customer.API/ERPInfinity.Customer.API.csproj" />
+    <Project Path="src/Services/Customer/ERPInfinity.Customer.Application/ERPInfinity.Customer.Application.csproj" />
+    <Project Path="src/Services/Customer/ERPInfinity.Customer.Domain/ERPInfinity.Customer.Domain.csproj" />
+    <Project Path="src/Services/Customer/ERPInfinity.Customer.Infrastructure/ERPInfinity.Customer.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Finance/">
+    <Project Path="src/Services/Finance/ERPInfinity.Finance.API/ERPInfinity.Finance.API.csproj" />
+    <Project Path="src/Services/Finance/ERPInfinity.Finance.Application/ERPInfinity.Finance.Application.csproj" />
+    <Project Path="src/Services/Finance/ERPInfinity.Finance.Domain/ERPInfinity.Finance.Domain.csproj" />
+    <Project Path="src/Services/Finance/ERPInfinity.Finance.Infrastructure/ERPInfinity.Finance.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Identity/">
+    <Project Path="src/Services/Identity/ERPInfinity.Identity.API/ERPInfinity.Identity.API.csproj" />
+    <Project Path="src/Services/Identity/ERPInfinity.Identity.Application/ERPInfinity.Identity.Application.csproj" />
+    <Project Path="src/Services/Identity/ERPInfinity.Identity.Domain/ERPInfinity.Identity.Domain.csproj" />
+    <Project Path="src/Services/Identity/ERPInfinity.Identity.Infrastructure/ERPInfinity.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Inventory/">
+    <Project Path="src/Services/Inventory/ERPInfinity.Inventory.API/ERPInfinity.Inventory.API.csproj" />
+    <Project Path="src/Services/Inventory/ERPInfinity.Inventory.Application/ERPInfinity.Inventory.Application.csproj" />
+    <Project Path="src/Services/Inventory/ERPInfinity.Inventory.Domain/ERPInfinity.Inventory.Domain.csproj" />
+    <Project Path="src/Services/Inventory/ERPInfinity.Inventory.Infrastructure/ERPInfinity.Inventory.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Notification/">
+    <Project Path="src/Services/Notification/ERPInfinity.Notification.API/ERPInfinity.Notification.API.csproj" />
+    <Project Path="src/Services/Notification/ERPInfinity.Notification.Application/ERPInfinity.Notification.Application.csproj" />
+    <Project Path="src/Services/Notification/ERPInfinity.Notification.Domain/ERPInfinity.Notification.Domain.csproj" />
+    <Project Path="src/Services/Notification/ERPInfinity.Notification.Infrastructure/ERPInfinity.Notification.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Order/">
+    <Project Path="src/Services/Order/ERPInfinity.Order.API/ERPInfinity.Order.API.csproj" />
+    <Project Path="src/Services/Order/ERPInfinity.Order.Application/ERPInfinity.Order.Application.csproj" />
+    <Project Path="src/Services/Order/ERPInfinity.Order.Domain/ERPInfinity.Order.Domain.csproj" />
+    <Project Path="src/Services/Order/ERPInfinity.Order.Infrastructure/ERPInfinity.Order.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Payment/">
+    <Project Path="src/Services/Payment/ERPInfinity.Payment.API/ERPInfinity.Payment.API.csproj" />
+    <Project Path="src/Services/Payment/ERPInfinity.Payment.Application/ERPInfinity.Payment.Application.csproj" />
+    <Project Path="src/Services/Payment/ERPInfinity.Payment.Domain/ERPInfinity.Payment.Domain.csproj" />
+    <Project Path="src/Services/Payment/ERPInfinity.Payment.Infrastructure/ERPInfinity.Payment.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Pricing/">
+    <Project Path="src/Services/Pricing/ERPInfinity.Pricing.API/ERPInfinity.Pricing.API.csproj" />
+    <Project Path="src/Services/Pricing/ERPInfinity.Pricing.Application/ERPInfinity.Pricing.Application.csproj" />
+    <Project Path="src/Services/Pricing/ERPInfinity.Pricing.Domain/ERPInfinity.Pricing.Domain.csproj" />
+    <Project Path="src/Services/Pricing/ERPInfinity.Pricing.Infrastructure/ERPInfinity.Pricing.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Product/">
+    <Project Path="src/Services/Product/ERPInfinity.Product.API/ERPInfinity.Product.API.csproj" />
+    <Project Path="src/Services/Product/ERPInfinity.Product.Application/ERPInfinity.Product.Application.csproj" />
+    <Project Path="src/Services/Product/ERPInfinity.Product.Domain/ERPInfinity.Product.Domain.csproj" />
+    <Project Path="src/Services/Product/ERPInfinity.Product.Infrastructure/ERPInfinity.Product.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Purchase/">
+    <Project Path="src/Services/Purchase/ERPInfinity.Purchase.API/ERPInfinity.Purchase.API.csproj" />
+    <Project Path="src/Services/Purchase/ERPInfinity.Purchase.Application/ERPInfinity.Purchase.Application.csproj" />
+    <Project Path="src/Services/Purchase/ERPInfinity.Purchase.Domain/ERPInfinity.Purchase.Domain.csproj" />
+    <Project Path="src/Services/Purchase/ERPInfinity.Purchase.Infrastructure/ERPInfinity.Purchase.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Reporting/">
+    <Project Path="src/Services/Reporting/ERPInfinity.Reporting.API/ERPInfinity.Reporting.API.csproj" />
+    <Project Path="src/Services/Reporting/ERPInfinity.Reporting.Application/ERPInfinity.Reporting.Application.csproj" />
+    <Project Path="src/Services/Reporting/ERPInfinity.Reporting.Domain/ERPInfinity.Reporting.Domain.csproj" />
+    <Project Path="src/Services/Reporting/ERPInfinity.Reporting.Infrastructure/ERPInfinity.Reporting.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Sales/">
+    <Project Path="src/Services/Sales/ERPInfinity.Sales.API/ERPInfinity.Sales.API.csproj" />
+    <Project Path="src/Services/Sales/ERPInfinity.Sales.Application/ERPInfinity.Sales.Application.csproj" />
+    <Project Path="src/Services/Sales/ERPInfinity.Sales.Domain/ERPInfinity.Sales.Domain.csproj" />
+    <Project Path="src/Services/Sales/ERPInfinity.Sales.Infrastructure/ERPInfinity.Sales.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Store/">
+    <Project Path="src/Services/Store/ERPInfinity.Store.API/ERPInfinity.Store.API.csproj" />
+    <Project Path="src/Services/Store/ERPInfinity.Store.Application/ERPInfinity.Store.Application.csproj" />
+    <Project Path="src/Services/Store/ERPInfinity.Store.Domain/ERPInfinity.Store.Domain.csproj" />
+    <Project Path="src/Services/Store/ERPInfinity.Store.Infrastructure/ERPInfinity.Store.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/Warehouse/">
+    <Project Path="src/Services/Warehouse/ERPInfinity.Warehouse.API/ERPInfinity.Warehouse.API.csproj" />
+    <Project Path="src/Services/Warehouse/ERPInfinity.Warehouse.Application/ERPInfinity.Warehouse.Application.csproj" />
+    <Project Path="src/Services/Warehouse/ERPInfinity.Warehouse.Domain/ERPInfinity.Warehouse.Domain.csproj" />
+    <Project Path="src/Services/Warehouse/ERPInfinity.Warehouse.Infrastructure/ERPInfinity.Warehouse.Infrastructure.csproj" />
+  </Folder>
+</Solution>

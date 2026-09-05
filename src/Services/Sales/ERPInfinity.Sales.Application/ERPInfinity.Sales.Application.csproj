@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ERPInfinity.Sales.Domain\ERPInfinity.Sales.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\ERPInfinity.BuildingBlocks.CQRS\ERPInfinity.BuildingBlocks.CQRS.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\ERPInfinity.BuildingBlocks.Messaging\ERPInfinity.BuildingBlocks.Messaging.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

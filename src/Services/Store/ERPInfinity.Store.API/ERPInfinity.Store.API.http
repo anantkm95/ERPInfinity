@@ -1,0 +1,6 @@
+@ERPInfinity.Store.API_HostAddress = http://localhost:5145
+
+GET {{ERPInfinity.Store.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

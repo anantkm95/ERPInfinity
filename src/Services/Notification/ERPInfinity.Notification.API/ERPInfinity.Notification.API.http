@@ -1,0 +1,6 @@
+@ERPInfinity.Notification.API_HostAddress = http://localhost:5001
+
+GET {{ERPInfinity.Notification.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
