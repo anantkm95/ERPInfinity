@@ -1,0 +1,91 @@
+# ========================================================================================
+# ERPInfinity Azure DevOps CI/CD Sequential Pipeline
+# Order: Build & Test -> Development (DEV) -> INT -> UAT -> Production (PROD)
+# ========================================================================================
+
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - dev
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  # STAGE 0: BUILD & TEST
+  - stage: BuildAndTest
+    displayName: '0. Build & Test Solution'
+    jobs:
+      - job: Build
+        displayName: 'Build ERPInfinity Solution'
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'
+              version: '10.0.x'
+          - script: dotnet restore ERPInfinity.slnx
+            displayName: 'Restore Packages'
+          - script: dotnet build ERPInfinity.slnx --configuration Release
+            displayName: 'Build Solution'
+
+  # STAGE 1: DEVELOPMENT ENVIRONMENT
+  - stage: DeployDevelopment
+    displayName: '1. Deploy to Development (DEV)'
+    dependsOn: BuildAndTest
+    jobs:
+      - deployment: DeployDevJob
+        displayName: 'Deploy DEV Environment'
+        environment: 'Development'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "Deploying to Development Environment..."
+                  displayName: 'Deploy to DEV'
+
+  # STAGE 2: INTEGRATION TESTING (INT)
+  - stage: DeployINT
+    displayName: '2. Deploy to Integration (INT)'
+    dependsOn: DeployDevelopment
+    jobs:
+      - deployment: DeployINTJob
+        displayName: 'Deploy INT Environment'
+        environment: 'INT'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "Deploying to INT Environment..."
+                  displayName: 'Deploy to INT'
+
+  # STAGE 3: USER ACCEPTANCE TESTING (UAT)
+  - stage: DeployUAT
+    displayName: '3. Deploy to User Acceptance Testing (UAT)'
+    dependsOn: DeployINT
+    jobs:
+      - deployment: DeployUATJob
+        displayName: 'Deploy UAT Environment'
+        environment: 'UAT'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "Deploying to UAT Environment..."
+                  displayName: 'Deploy to UAT'
+
+  # STAGE 4: PRODUCTION (PROD)
+  - stage: DeployProduction
+    displayName: '4. Deploy to Production (PROD)'
+    dependsOn: DeployUAT
+    jobs:
+      - deployment: DeployProdJob
+        displayName: 'Deploy Production Environment'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "Deploying to Production Environment..."
+                  displayName: 'Deploy to PROD'
