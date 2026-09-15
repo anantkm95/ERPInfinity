@@ -87,6 +87,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // 6. Configure Middleware Pipeline
+app.UseCors("AllowAll");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -94,7 +95,6 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty; // Swagger UI at root URL
 });
 
-app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

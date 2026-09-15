@@ -1,3 +1,5 @@
+using ERPInfinity.Product.Domain;
+using ERPInfinity.Product.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +10,13 @@ namespace ERPInfinity.Product.API.Controllers;
 [Produces("application/json")]
 public class ProductController : ControllerBase
 {
+    private readonly IProductRepository _productRepository;
+
+    public ProductController(IProductRepository productRepository)
+    {
+        _productRepository = productRepository;
+    }
+
     /// <summary>
     /// Health check endpoint for Product & Catalog Service.
     /// </summary>
@@ -23,19 +32,60 @@ public class ProductController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves summary status for Product & Catalog Service (Requires Scope / Permission Policy 'ProductRead').
+    /// High-speed barcode scan lookup for POS terminals (<2ms SP execution).
     /// </summary>
-    [HttpGet]
-    [Authorize(Policy = "ProductRead")]
-    public IActionResult GetSummary()
+    [HttpGet("barcode/{code}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LookupByBarcode(string code, CancellationToken cancellationToken)
     {
-        return Ok(new
+        var item = await _productRepository.LookupByBarcodeAsync(code, cancellationToken);
+        if (item == null)
         {
-            service = "Product & Catalog Service",
-            policyRequired = "ProductRead",
-            status = "Authorized microservice access granted.",
-            timestamp = DateTime.UtcNow
-        });
+            return NotFound(new { message = $"No active product found for barcode '{code}'." });
+        }
+        return Ok(item);
+    }
+
+    /// <summary>
+    /// Retrieves full product details by ProductId.
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.GetByIdAsync(id, cancellationToken);
+        if (product == null)
+        {
+            return NotFound(new { message = $"Product '{id}' not found." });
+        }
+        return Ok(product);
+    }
+
+    /// <summary>
+    /// Creates a new Product Master with SKUs and Barcodes.
+    /// </summary>
+    [HttpPost]
+    [Authorize(Policy = "ProductWrite")]
+    public async Task<IActionResult> CreateProduct([FromBody] Domain.Product product, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(product.Name) || string.IsNullOrWhiteSpace(product.ProductCode))
+        {
+            return BadRequest(new { message = "ProductCode and Name are required." });
+        }
+
+        await _productRepository.CreateProductAsync(product, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+    }
+
+    /// <summary>
+    /// Updates SKU MRP and Selling Price and emits Outbox integration event.
+    /// </summary>
+    [HttpPut("skus/{skuId:guid}/price")]
+    [Authorize(Policy = "ProductWrite")]
+    public async Task<IActionResult> UpdateSKUPricing(Guid skuId, [FromBody] UpdatePriceRequest request, CancellationToken cancellationToken)
+    {
+        await _productRepository.UpdateSKUPricingAsync(skuId, request.NewMRP, request.NewSellingPrice, request.UpdatedBy, cancellationToken);
+        return Ok(new { message = "SKU pricing updated and Outbox event emitted.", skuId, request.NewMRP, request.NewSellingPrice });
     }
 
     /// <summary>
@@ -53,3 +103,5 @@ public class ProductController : ControllerBase
         });
     }
 }
+
+public record UpdatePriceRequest(decimal NewMRP, decimal NewSellingPrice, Guid UpdatedBy);

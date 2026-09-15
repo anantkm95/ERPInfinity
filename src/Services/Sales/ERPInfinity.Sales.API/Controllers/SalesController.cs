@@ -1,3 +1,4 @@
+using ERPInfinity.Sales.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,13 @@ namespace ERPInfinity.Sales.API.Controllers;
 [Produces("application/json")]
 public class SalesController : ControllerBase
 {
+    private readonly ISalesRepository _salesRepository;
+
+    public SalesController(ISalesRepository salesRepository)
+    {
+        _salesRepository = salesRepository;
+    }
+
     /// <summary>
     /// Health check endpoint for Sales & POS Billing Service.
     /// </summary>
@@ -23,33 +31,58 @@ public class SalesController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves summary status for Sales & POS Billing Service (Requires Scope / Permission Policy 'SalesCreate').
+    /// Opens a new POS Register session for a terminal and cashier.
     /// </summary>
-    [HttpGet]
-    [Authorize(Policy = "SalesCreate")]
-    public IActionResult GetSummary()
+    [HttpPost("registers/open")]
+    [Authorize(Policy = "SalesWrite")]
+    public async Task<IActionResult> OpenRegister([FromBody] OpenRegisterRequest request, CancellationToken cancellationToken)
     {
+        var registerId = await _salesRepository.OpenPOSRegisterAsync(request.StoreId, request.TerminalCode, request.CashierId, request.OpeningBalance, cancellationToken);
+        return Ok(new { message = "POS Register session opened successfully.", registerId, request.StoreId, request.TerminalCode });
+    }
+
+    /// <summary>
+    /// Creates a new Sales Invoice for POS checkout counter billing.
+    /// </summary>
+    [HttpPost("invoices")]
+    [Authorize(Policy = "SalesWrite")]
+    public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _salesRepository.CreateSalesInvoiceAsync(
+            request.RegisterId,
+            request.StoreId,
+            request.CustomerId,
+            request.SubTotal,
+            request.DiscountAmount,
+            request.TaxAmount,
+            request.TotalAmount,
+            request.PaymentMode,
+            cancellationToken);
+
         return Ok(new
         {
-            service = "Sales & POS Billing Service",
-            policyRequired = "SalesCreate",
-            status = "Authorized microservice access granted.",
-            timestamp = DateTime.UtcNow
+            message = "Sales Invoice generated and Outbox event published.",
+            invoiceId = result.InvoiceId,
+            invoiceNumber = result.InvoiceNumber,
+            totalAmount = request.TotalAmount
         });
     }
 
     /// <summary>
-    /// Internal machine-to-machine endpoint for inter-microservice communication.
+    /// Retrieves Invoice details by InvoiceId.
     /// </summary>
-    [HttpPost("internal-sync")]
-    [Authorize(Policy = "InternalServiceOnly")]
-    public IActionResult InternalSync([FromBody] object payload)
+    [HttpGet("invoices/{id:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetInvoice(Guid id, CancellationToken cancellationToken)
     {
-        return Ok(new
+        var invoice = await _salesRepository.GetInvoiceByIdAsync(id, cancellationToken);
+        if (invoice == null)
         {
-            service = "Sales & POS Billing Service",
-            message = "Scope-protected inter-microservice machine-to-machine communication successful.",
-            timestamp = DateTime.UtcNow
-        });
+            return NotFound(new { message = $"Invoice '{id}' not found." });
+        }
+        return Ok(invoice);
     }
 }
+
+public record OpenRegisterRequest(Guid StoreId, string TerminalCode, Guid CashierId, decimal OpeningBalance);
+public record CreateInvoiceRequest(Guid RegisterId, Guid StoreId, Guid? CustomerId, decimal SubTotal, decimal DiscountAmount, decimal TaxAmount, decimal TotalAmount, string PaymentMode);

@@ -1,14 +1,16 @@
 using System.Text;
 using ERPInfinity.BuildingBlocks.CQRS.Security;
+using ERPInfinity.Sales.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Add Controllers & API Explorer
+// 1. Add Controllers & Infrastructure
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSalesInfrastructure(builder.Configuration);
 
 // 2. Configure JWT Authentication
 var secretKey = builder.Configuration["JwtSettings:SecretKey"] ?? "ERPInfinityEnterpriseSuperSecretSecurityKey2026!#$";
@@ -86,7 +88,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// 6. Configure Middleware Pipeline
+// 6. Database Auto Creation / Verification
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<SalesDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
+// 7. Configure Middleware Pipeline
+app.UseCors("AllowAll");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -94,7 +104,6 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty; // Swagger UI at root URL
 });
 
-app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

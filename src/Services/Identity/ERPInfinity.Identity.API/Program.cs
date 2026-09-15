@@ -99,14 +99,28 @@ using (var scope = app.Services.CreateScope())
 }
 
 // 7. Configure Middleware Pipeline
+app.UseCors("AllowAll");
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ERPInfinity Identity Service v1");
-    c.RoutePrefix = string.Empty; // Swagger UI at root URL
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "1. Identity & Auth Service v1");
+    c.SwaggerEndpoint("http://localhost:5002/swagger/v1/swagger.json", "2. Product Master Service v1");
+    c.SwaggerEndpoint("http://localhost:5003/swagger/v1/swagger.json", "3. Inventory & Stock Ledger v1");
+    c.SwaggerEndpoint("http://localhost:5004/swagger/v1/swagger.json", "4. Sales & POS Billing Service v1");
+    c.SwaggerEndpoint("http://localhost:5005/swagger/v1/swagger.json", "5. Purchase & Procurement v1");
+    c.SwaggerEndpoint("http://localhost:5006/swagger/v1/swagger.json", "6. Warehouse & Fulfillment v1");
+    c.SwaggerEndpoint("http://localhost:5007/swagger/v1/swagger.json", "7. Order Management Service v1");
+    c.SwaggerEndpoint("http://localhost:5008/swagger/v1/swagger.json", "8. Pricing & Promotion Engine v1");
+    c.SwaggerEndpoint("http://localhost:5009/swagger/v1/swagger.json", "9. Payment Gateway Service v1");
+    c.SwaggerEndpoint("http://localhost:5010/swagger/v1/swagger.json", "10. Finance & General Ledger v1");
+    c.SwaggerEndpoint("http://localhost:5011/swagger/v1/swagger.json", "11. Store Infrastructure v1");
+    c.SwaggerEndpoint("http://localhost:5012/swagger/v1/swagger.json", "12. Notification Service v1");
+    c.SwaggerEndpoint("http://localhost:5013/swagger/v1/swagger.json", "13. Customer & CRM Service v1");
+    c.SwaggerEndpoint("http://localhost:5014/swagger/v1/swagger.json", "14. Reporting & BI Analytics v1");
+    c.RoutePrefix = "swagger";
 });
 
-app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 

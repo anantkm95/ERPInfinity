@@ -1,0 +1,6 @@
+/* Angular Component Scoped Styles - Glassmorphic Dark Theme */
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
