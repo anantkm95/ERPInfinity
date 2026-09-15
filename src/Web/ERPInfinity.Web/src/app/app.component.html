@@ -1,0 +1,793 @@
+<!-- TOAST ALERT CONTAINER -->
+<div class="toast-container">
+  <div *ngFor="let t of toasts()" class="toast" [class.toast-success]="t.type === 'success'" [class.toast-info]="t.type === 'info'" [class.toast-amber]="t.type === 'amber'">
+    <i class="fa-solid" [class.fa-circle-check]="t.type === 'success'" [class.fa-circle-info]="t.type === 'info'" [class.fa-triangle-exclamation]="t.type === 'amber'"></i>
+    <span>{{ t.message }}</span>
+  </div>
+</div>
+
+<!-- 0. AUTHENTICATION OVERLAY SCREEN -->
+<div *ngIf="!authService.isAuthenticated()" class="auth-overlay active">
+  <div class="auth-card glass-card">
+    <div class="auth-brand">
+      <div class="logo-icon-lg">
+        <i class="fa-solid fa-infinity"></i>
+      </div>
+      <h1>ERPInfinity (Angular v19)</h1>
+      <p>Enterprise Microservices ERP & POS Architecture</p>
+    </div>
+
+    <!-- Auth Mode Switcher -->
+    <div class="auth-tabs">
+      <button class="auth-tab" [class.active]="authTabMode() === 'login'" (click)="authTabMode.set('login')">
+        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+      </button>
+      <button class="auth-tab" [class.active]="authTabMode() === 'register'" (click)="authTabMode.set('register')">
+        <i class="fa-solid fa-user-plus"></i> Register Account
+      </button>
+    </div>
+
+    <!-- Express Quick Persona Sign-In -->
+    <div class="quick-role-section">
+      <span class="quick-role-title"><i class="fa-solid fa-bolt text-amber"></i> Quick Demo Persona Sign-In:</span>
+      <div class="role-cards-grid">
+        <div class="role-demo-card" (click)="loginWithPersona('CEO')">
+          <div class="role-icon bg-emerald"><i class="fa-solid fa-crown"></i></div>
+          <div class="role-info">
+            <strong>Super Admin / CEO</strong>
+            <span>Full Master Control & Executive Analytics</span>
+          </div>
+        </div>
+        <div class="role-demo-card" (click)="loginWithPersona('Admin')">
+          <div class="role-icon bg-indigo"><i class="fa-solid fa-user-gear"></i></div>
+          <div class="role-info">
+            <strong>Enterprise Admin</strong>
+            <span>Catalog, Inventory GRN & Procurement POs</span>
+          </div>
+        </div>
+        <div class="role-demo-card" (click)="loginWithPersona('Cashier')">
+          <div class="role-icon bg-primary"><i class="fa-solid fa-cash-register"></i></div>
+          <div class="role-info">
+            <strong>POS Cashier Operator</strong>
+            <span>Fast Counter Billing & Receipt Printing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form 1: LOGIN -->
+    <form *ngIf="authTabMode() === 'login'" (submit)="submitLogin($event)" class="auth-form active">
+      <div class="form-group">
+        <label><i class="fa-solid fa-envelope"></i> Username or Email *</label>
+        <input type="text" [value]="loginUsername()" (input)="loginUsername.set($any($event.target).value)" class="input-lg-auth" required>
+      </div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-lock"></i> Password *</label>
+        <input type="password" [value]="loginPassword()" (input)="loginPassword.set($any($event.target).value)" class="input-lg-auth" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">
+        <i class="fa-solid fa-right-to-bracket"></i> Sign In to ERPInfinity
+      </button>
+    </form>
+
+    <!-- Form 2: REGISTER -->
+    <form *ngIf="authTabMode() === 'register'" (submit)="submitRegister($event)" class="auth-form active">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" [value]="regName()" (input)="regName.set($any($event.target).value)" class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>Username *</label>
+          <input type="text" [value]="regUsername()" (input)="regUsername.set($any($event.target).value)" class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" [value]="regEmail()" (input)="regEmail.set($any($event.target).value)" class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>Assign Role *</label>
+          <select [value]="regRole()" (change)="regRole.set($any($event.target).value)" class="select-md" required>
+            <option value="Cashier">Cashier (POS Counter Operator)</option>
+            <option value="Admin">Admin (Store & Inventory Manager)</option>
+            <option value="CEO">CEO / Super Admin (Full Access)</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-emerald btn-block btn-lg" style="margin-top: 1rem;">
+        <i class="fa-solid fa-user-check"></i> Register & Enter Portal
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- MAIN ANGULAR ENTERPRISE APP LAYOUT -->
+<div *ngIf="authService.isAuthenticated()" class="app-layout">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">
+        <i class="fa-solid fa-infinity"></i>
+      </div>
+      <div class="logo-text">
+        <h2>ERPInfinity</h2>
+        <span class="version-tag"><i class="fa-solid fa-bolt"></i> Angular v19</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">RETAIL & CORE OPERATIONS</div>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'pos'" (click)="activeTab.set('pos'); $event.preventDefault();">
+        <i class="fa-solid fa-cash-register"></i>
+        <span>POS Counter & Billing</span>
+        <span class="badge badge-emerald">Live</span>
+      </a>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'products'" (click)="activeTab.set('products'); $event.preventDefault();">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <span>Product Master</span>
+      </a>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'inventory'" (click)="activeTab.set('inventory'); $event.preventDefault();">
+        <i class="fa-solid fa-warehouse"></i>
+        <span>Stock & Inventory</span>
+        <span class="badge badge-amber">Optimal</span>
+      </a>
+
+      <div class="nav-section-label">SUPPLY CHAIN & FINANCE</div>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'purchase'" (click)="activeTab.set('purchase'); $event.preventDefault();">
+        <i class="fa-solid fa-truck-ramp-box"></i>
+        <span>Procurement & POs</span>
+      </a>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'sales'" (click)="activeTab.set('sales'); $event.preventDefault();">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Sales Analytics</span>
+      </a>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'customers'" (click)="activeTab.set('customers'); $event.preventDefault();">
+        <i class="fa-solid fa-users-gear"></i>
+        <span>Customers & CRM</span>
+      </a>
+
+      <div class="nav-section-label">INFRASTRUCTURE & SECURITY</div>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'identity'" (click)="activeTab.set('identity'); $event.preventDefault();">
+        <i class="fa-solid fa-user-shield"></i>
+        <span>Identity & IAM</span>
+      </a>
+      <a href="#" class="nav-item" [class.active]="activeTab() === 'gateway'" (click)="activeTab.set('gateway'); $event.preventDefault();">
+        <i class="fa-solid fa-network-wired"></i>
+        <span>14 Services Health</span>
+        <span class="badge badge-indigo">14 Nodes</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="avatar">{{ userInitials() }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ authService.currentUser()?.displayName }}</span>
+          <span class="user-role"><i class="fa-solid fa-shield-halved"></i> {{ authService.currentUser()?.role }}</span>
+        </div>
+        <button class="logout-btn" (click)="logout()" title="Sign Out">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <!-- Top Header Bar -->
+    <header class="top-header">
+      <div class="header-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search SKUs, Barcodes, Invoices (Press '/')...">
+      </div>
+
+      <div class="header-actions">
+        <div class="sound-toggle-btn" (click)="audioService.toggleSound()">
+          <i class="fa-solid" [class.fa-volume-high]="audioService.soundEnabled()" [class.fa-volume-xmark]="!audioService.soundEnabled()"></i>
+        </div>
+
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span class="status-text">MSSQLSERVER01 & Gateway Active</span>
+        </div>
+
+        <button class="btn btn-outline" (click)="addItemByBarcode('8901058000101')">
+          <i class="fa-solid fa-barcode"></i> Scan Test Barcode
+        </button>
+      </div>
+    </header>
+
+    <!-- Dynamic View Containers -->
+    <div class="view-container">
+
+      <!-- 1. POS COUNTER TERMINAL -->
+      <section *ngIf="activeTab() === 'pos'" class="tab-view active">
+        <div class="pos-grid">
+          <div class="pos-cart-panel glass-card">
+            <div class="panel-header">
+              <div>
+                <h3><i class="fa-solid fa-cash-register text-emerald"></i> POS Billing Terminal #01</h3>
+                <span class="subtitle">Operator: {{ authService.currentUser()?.displayName }}</span>
+              </div>
+              <span class="session-badge"><i class="fa-solid fa-circle"></i> Register: OPEN</span>
+            </div>
+
+            <!-- Customer Selector Bar -->
+            <div class="customer-bar">
+              <div class="cust-info">
+                <i class="fa-solid fa-user-tag"></i>
+                <span>Customer: <strong>{{ activeCustomer().name }}</strong></span>
+              </div>
+            </div>
+
+            <!-- Barcode Scanner Input -->
+            <div class="barcode-input-wrapper">
+              <i class="fa-solid fa-barcode barcode-icon"></i>
+              <input type="text" [value]="barcodeInput()" (input)="barcodeInput.set($any($event.target).value)" (keyup.enter)="addItemByBarcode()" placeholder="Scan EAN Barcode (e.g. 8901058000101, 8901262010054)..." autofocus>
+              <button class="btn btn-primary" (click)="addItemByBarcode()"><i class="fa-solid fa-plus"></i> Add Item</button>
+            </div>
+
+            <!-- Express Quick Item Shortcut Chips -->
+            <div class="quick-items-bar">
+              <span class="quick-label"><i class="fa-solid fa-bolt"></i> Express Tap:</span>
+              <button class="quick-chip" (click)="addItemByBarcode('8901058000101')">🧂 Tata Salt (₹25)</button>
+              <button class="quick-chip" (click)="addItemByBarcode('8901262010054')">🧈 Amul Butter (₹260)</button>
+              <button class="quick-chip" (click)="addItemByBarcode('8901058852311')">🍜 Maggi Noodles (₹50)</button>
+              <button class="quick-chip" (click)="addItemByBarcode('8901030678912')">🌻 Fortune Oil (₹145)</button>
+              <button class="quick-chip" (click)="addItemByBarcode('8901014002105')">🍪 Good Day (₹30)</button>
+            </div>
+
+            <!-- Cart Data Table -->
+            <div class="cart-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Item Description</th>
+                    <th>SKU Code</th>
+                    <th>MRP</th>
+                    <th>Price</th>
+                    <th style="width: 90px;">Qty</th>
+                    <th>GST %</th>
+                    <th>Total</th>
+                    <th style="text-align:center;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="cart().length === 0">
+                    <td colspan="8" style="text-align:center; color: var(--text-dim); padding: 2.5rem;">Cart is empty. Scan barcodes or tap express shortcut chips to start billing.</td>
+                  </tr>
+                  <tr *ngFor="let item of cart(); let i = index">
+                    <td><strong>{{ item.productName }}</strong></td>
+                    <td><code>{{ item.skuCode }}</code></td>
+                    <td>₹{{ item.mrp.toFixed(2) }}</td>
+                    <td>₹{{ item.sellingPrice.toFixed(2) }}</td>
+                    <td>
+                      <input type="number" [value]="item.quantity" (change)="updateQty(i, +$any($event.target).value)" min="1" class="inline-input">
+                    </td>
+                    <td>{{ item.taxPercentage }}%</td>
+                    <td><strong>₹{{ (item.sellingPrice * item.quantity).toFixed(2) }}</strong></td>
+                    <td style="text-align:center;">
+                      <button class="btn btn-sm btn-outline" (click)="removeCartItem(i)" style="color: var(--crimson);"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Payment Summary -->
+          <div class="pos-summary-panel glass-card">
+            <h3><i class="fa-solid fa-receipt text-indigo"></i> Payment & Checkout</h3>
+            
+            <div class="summary-list">
+              <div class="summary-row">
+                <span>Total Items</span>
+                <span class="badge badge-indigo">{{ cartItemsCount() }} Items</span>
+              </div>
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span>₹{{ cartSubtotal().toFixed(2) }}</span>
+              </div>
+              <div class="summary-row">
+                <span>GST Tax</span>
+                <span class="text-emerald">₹{{ cartTax().toFixed(2) }}</span>
+              </div>
+              <div class="summary-row total-row">
+                <span>Total Payable</span>
+                <span class="text-accent">₹{{ cartGrandTotal().toFixed(2) }}</span>
+              </div>
+            </div>
+
+            <div class="cash-tendered-group">
+              <label>Cash Tendered</label>
+              <input type="number" [value]="cashTendered()" (input)="cashTendered.set(+$any($event.target).value)" placeholder="0.00" class="input-lg">
+              <div class="change-due">Change Due: <strong class="text-emerald">₹{{ changeDue().toFixed(2) }}</strong></div>
+            </div>
+
+            <button class="btn btn-emerald btn-block btn-lg" (click)="completeCheckout()">
+              <i class="fa-solid fa-circle-check"></i> Complete & Print Receipt
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. PRODUCT MASTER CATALOG -->
+      <section *ngIf="activeTab() === 'products'" class="tab-view active">
+        <div class="view-header">
+          <div>
+            <h2><i class="fa-solid fa-boxes-stacked text-primary"></i> Product Master Catalog</h2>
+            <p>SKUs, Barcodes, Categories, and GST Rates.</p>
+          </div>
+          <button class="btn btn-primary" (click)="activeAddProductModal.set(true)">
+            <i class="fa-solid fa-plus"></i> Add New Product
+          </button>
+        </div>
+
+        <div class="product-cards-grid">
+          <div *ngFor="let p of catalog()" class="product-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <span class="badge badge-indigo">{{ p.category }}</span>
+              <span class="badge badge-emerald">GST {{ p.taxPercentage }}%</span>
+            </div>
+            <h4 style="margin-bottom:0.4rem; font-family: var(--font-heading);">{{ p.productName }}</h4>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">SKU: <code>{{ p.skuCode }}</code> | EAN: <code>{{ p.barcode }}</code></p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-glass); padding-top:0.75rem;">
+              <div>
+                <span style="font-size:0.75rem; text-decoration:line-through; color:var(--text-dim);">₹{{ p.mrp.toFixed(2) }}</span>
+                <span style="font-size:1.15rem; font-weight:800; color:var(--emerald); display:block;">₹{{ p.sellingPrice.toFixed(2) }}</span>
+              </div>
+              <button class="btn btn-sm btn-primary" (click)="addItemByBarcode(p.barcode); activeTab.set('pos');">
+                <i class="fa-solid fa-cart-plus"></i> Bill Item
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. INVENTORY LEDGER -->
+      <section *ngIf="activeTab() === 'inventory'" class="tab-view active">
+        <div class="view-header">
+          <div>
+            <h2><i class="fa-solid fa-warehouse text-amber"></i> Inventory Stock Ledger</h2>
+            <p>Real-time stock balance across Central Warehouse & Retail Stores.</p>
+          </div>
+          <button class="btn btn-amber" (click)="activeGrnModal.set(true)">
+            <i class="fa-solid fa-arrow-down-to-bracket"></i> Receive Stock (GRN)
+          </button>
+        </div>
+
+        <div class="stats-overview">
+          <div class="stat-card glass-card">
+            <div class="stat-icon bg-emerald"><i class="fa-solid fa-cubes"></i></div>
+            <div class="stat-data">
+              <span class="stat-value">{{ totalStockOnHand() }} Units</span>
+              <span class="stat-label">Total Stock On Hand</span>
+            </div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-icon bg-primary"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+            <div class="stat-data">
+              <span class="stat-value">₹{{ totalInventoryValuation().toLocaleString('en-IN') }}</span>
+              <span class="stat-label">Total Inventory Valuation</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>SKU Code</th>
+                <th>Product Name</th>
+                <th>On Hand</th>
+                <th>Available</th>
+                <th>Reorder Point</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of inventory()">
+                <td><strong>{{ item.location }}</strong></td>
+                <td><code>{{ item.skuCode }}</code></td>
+                <td>{{ item.productName }}</td>
+                <td>{{ item.onHand }}</td>
+                <td><strong class="text-emerald">{{ item.available }}</strong></td>
+                <td>{{ item.reorderPoint }}</td>
+                <td><span class="badge badge-emerald">Optimal Stock</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. PROCUREMENT & PURCHASE ORDERS -->
+      <section *ngIf="activeTab() === 'purchase'" class="tab-view active">
+        <div class="view-header">
+          <div>
+            <h2><i class="fa-solid fa-truck-ramp-box text-primary"></i> Procurement & Purchase Orders</h2>
+            <p>Vendor orders lifecycle (`sp_CreatePurchaseOrder` & `sp_ApprovePurchaseOrder`).</p>
+          </div>
+          <button class="btn btn-primary" (click)="activePoModal.set(true)">
+            <i class="fa-solid fa-file-invoice"></i> Issue Purchase Order
+          </button>
+        </div>
+
+        <div class="glass-card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>PO Number</th>
+                <th>Supplier Name</th>
+                <th>Destination Warehouse</th>
+                <th>Status</th>
+                <th>Total Amount</th>
+                <th>Created Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let po of purchaseOrders()">
+                <td><code>{{ po.poNumber }}</code></td>
+                <td><strong>{{ po.vendor }}</strong></td>
+                <td>{{ po.warehouse }}</td>
+                <td><span class="badge badge-indigo">{{ po.status }}</span></td>
+                <td>₹{{ po.amount.toLocaleString('en-IN', {minimumFractionDigits: 2}) }}</td>
+                <td>{{ po.date }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. SALES ANALYTICS -->
+      <section *ngIf="activeTab() === 'sales'" class="tab-view active">
+        <div class="view-header">
+          <div>
+            <h2><i class="fa-solid fa-chart-line text-emerald"></i> Sales Analytics & Executive Dashboard</h2>
+            <p>Real-time transaction log & GST tax collection.</p>
+          </div>
+        </div>
+
+        <div class="stats-overview">
+          <div class="stat-card glass-card">
+            <div class="stat-icon bg-emerald"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+            <div class="stat-data">
+              <span class="stat-value">₹{{ salesTotal().toFixed(2) }}</span>
+              <span class="stat-label">Today's Total Sales</span>
+            </div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-icon bg-indigo"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <div class="stat-data">
+              <span class="stat-value">{{ invoiceCount() }} Invoices</span>
+              <span class="stat-label">Completed Orders</span>
+            </div>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-icon bg-amber"><i class="fa-solid fa-percent"></i></div>
+            <div class="stat-data">
+              <span class="stat-value">₹{{ totalGstCollected().toFixed(2) }}</span>
+              <span class="stat-label">Total GST Collected</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card table-card" style="margin-top: 1.5rem;">
+          <h3><i class="fa-solid fa-receipt"></i> Completed Invoices Log</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Invoice No.</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Items</th>
+                <th>Payment Mode</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let inv of salesInvoices()">
+                <td><code>{{ inv.invoiceNum }}</code></td>
+                <td>{{ inv.customer }}</td>
+                <td>{{ inv.date }}</td>
+                <td>{{ inv.itemsCount }} Items</td>
+                <td><span class="badge badge-indigo">{{ inv.mode }}</span></td>
+                <td><strong>₹{{ inv.amount.toFixed(2) }}</strong></td>
+                <td><span class="badge badge-emerald">Paid & Posted</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. CUSTOMERS & CRM -->
+      <section *ngIf="activeTab() === 'customers'" class="tab-view active">
+        <div class="view-header">
+          <div>
+            <h2><i class="fa-solid fa-users-gear text-indigo"></i> Customer Master & CRM</h2>
+            <p>Customer reward points & corporate accounts.</p>
+          </div>
+        </div>
+
+        <div class="glass-card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Full Name</th>
+                <th>Phone Number</th>
+                <th>Email</th>
+                <th>Loyalty Points</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>CUST-98201</code></td>
+                <td><strong>Rahul Sharma</strong></td>
+                <td>+91 98201 12345</td>
+                <td>rahul.s@example.com</td>
+                <td><span class="badge badge-emerald">420 Points</span></td>
+                <td><span class="badge badge-indigo">VIP Silver</span></td>
+              </tr>
+              <tr>
+                <td><code>CUST-98202</code></td>
+                <td><strong>Priya Patel</strong></td>
+                <td>+91 98202 54321</td>
+                <td>priya.p@corp.com</td>
+                <td><span class="badge badge-emerald">1,250 Points</span></td>
+                <td><span class="badge badge-amber">Corporate Gold</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 7. IDENTITY & IAM MATRIX -->
+      <section *ngIf="activeTab() === 'identity'" class="tab-view active">
+        <div class="view-header">
+          <div>
+            <h2><i class="fa-solid fa-user-shield text-emerald"></i> Identity & Security Access Matrix</h2>
+            <p>System Roles and Permission Matrix.</p>
+          </div>
+        </div>
+
+        <div class="glass-card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email Address</th>
+                <th>Assigned Role</th>
+                <th>Status</th>
+                <th>Permissions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>admin.anant</strong></td>
+                <td>anant@erpinfinity.com</td>
+                <td><span class="badge badge-indigo">CEO / SuperAdmin</span></td>
+                <td><span class="badge badge-emerald">Active</span></td>
+                <td><code>*.* (Full Master Access)</code></td>
+              </tr>
+              <tr>
+                <td>admin.mumbai</td>
+                <td>admin.mumbai@erpinfinity.com</td>
+                <td><span class="badge badge-indigo">Admin</span></td>
+                <td><span class="badge badge-emerald">Active</span></td>
+                <td><code>Product.*, Inventory.*, Purchase.*</code></td>
+              </tr>
+              <tr>
+                <td>cashier.counter1</td>
+                <td>cashier1@erpinfinity.com</td>
+                <td><span class="badge badge-amber">Cashier</span></td>
+                <td><span class="badge badge-emerald">Active</span></td>
+                <td><code>Sales.Create, POS.Scan, Customer.Read</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 8. 14 MICROSERVICES HEALTH TOPOLOGY -->
+      <section *ngIf="activeTab() === 'gateway'" class="tab-view active">
+        <div class="view-header">
+          <div>
+            <h2><i class="fa-solid fa-network-wired text-primary"></i> 14 Microservices Health Topology</h2>
+            <p>Machine-to-machine ping latency monitoring across the distributed architecture.</p>
+          </div>
+          <button class="btn btn-primary" (click)="refreshHealth()"><i class="fa-solid fa-rotate"></i> Refresh Health</button>
+        </div>
+
+        <div class="services-health-grid">
+          <div *ngFor="let s of services()" class="service-health-card">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div class="pulse-dot"></div>
+              <div>
+                <div class="service-name">{{ s.name }}</div>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Port: {{ s.port }} | Latency: <strong class="service-ping">{{ s.pingMs }}ms</strong></span>
+              </div>
+            </div>
+            <span class="badge badge-emerald">Healthy</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL 1: ADD NEW PRODUCT MODAL -->
+<div *ngIf="activeAddProductModal()" class="modal-overlay active">
+  <div class="modal-content glass-card">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-box-open text-primary"></i> Add New Product to Catalog</h3>
+      <button class="modal-close" (click)="activeAddProductModal.set(false)">&times;</button>
+    </div>
+    <form (submit)="submitAddProduct($event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input type="text" [value]="newProdName()" (input)="newProdName.set($any($event.target).value)" placeholder="e.g. Dettol Liquid Handwash 250ml" class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <select [value]="newProdCat()" (change)="newProdCat.set($any($event.target).value)" class="select-md" required>
+            <option value="Grocery">Grocery</option>
+            <option value="Dairy">Dairy</option>
+            <option value="Packaged Food">Packaged Food</option>
+            <option value="Personal Care">Personal Care</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>EAN Barcode *</label>
+          <input type="text" [value]="newProdBarcode()" (input)="newProdBarcode.set($any($event.target).value)" placeholder="e.g. 8901396001012" class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>SKU Code *</label>
+          <input type="text" [value]="newProdSku()" (input)="newProdSku.set($any($event.target).value)" placeholder="e.g. SKU-DETTOL-HANDWASH" class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>MRP (₹) *</label>
+          <input type="number" [value]="newProdMrp()" (input)="newProdMrp.set(+$any($event.target).value)" placeholder="110.00" class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>Selling Price (₹) *</label>
+          <input type="number" [value]="newProdPrice()" (input)="newProdPrice.set(+$any($event.target).value)" placeholder="99.00" class="input-md" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="activeAddProductModal.set(false)">Cancel</button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 2: RECEIVE GRN MODAL -->
+<div *ngIf="activeGrnModal()" class="modal-overlay active">
+  <div class="modal-content glass-card">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-arrow-down-to-bracket text-amber"></i> Receive Goods Receipt Note (GRN)</h3>
+      <button class="modal-close" (click)="activeGrnModal.set(false)">&times;</button>
+    </div>
+    <form (submit)="submitReceiveGRN($event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Select Product *</label>
+          <select [value]="grnSku()" (change)="grnSku.set($any($event.target).value)" class="select-md" required>
+            <option *ngFor="let p of catalog()" [value]="p.skuCode">{{ p.productName }} ({{ p.skuCode }})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Location *</label>
+          <select [value]="grnLocation()" (change)="grnLocation.set($any($event.target).value)" class="select-md" required>
+            <option value="WH-CENTRAL-01">WH-CENTRAL-01 (Central Warehouse)</option>
+            <option value="STORE-MUMBAI-01">STORE-MUMBAI-01 (Mumbai Retail)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Quantity Received *</label>
+          <input type="number" [value]="grnQty()" (input)="grnQty.set(+$any($event.target).value)" min="1" class="input-md" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="activeGrnModal.set(false)">Cancel</button>
+        <button type="submit" class="btn btn-amber"><i class="fa-solid fa-plus"></i> Post GRN Stock</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 3: CREATE PO MODAL -->
+<div *ngIf="activePoModal()" class="modal-overlay active">
+  <div class="modal-content glass-card">
+    <div class="modal-header">
+      <h3><i class="fa-solid fa-file-circle-plus text-primary"></i> Issue Purchase Order</h3>
+      <button class="modal-close" (click)="activePoModal.set(false)">&times;</button>
+    </div>
+    <form (submit)="submitCreatePO($event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Supplier Vendor Name *</label>
+          <input type="text" [value]="poVendor()" (input)="poVendor.set($any($event.target).value)" placeholder="e.g. Hindustan Unilever Ltd." class="input-md" required>
+        </div>
+        <div class="form-group">
+          <label>Warehouse *</label>
+          <select [value]="poWarehouse()" (change)="poWarehouse.set($any($event.target).value)" class="select-md">
+            <option value="WH-CENTRAL-01">WH-CENTRAL-01 (Central Hub)</option>
+            <option value="STORE-MUMBAI-01">STORE-MUMBAI-01</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Order Amount (₹) *</label>
+          <input type="number" [value]="poAmount()" (input)="poAmount.set(+$any($event.target).value)" placeholder="45000.00" class="input-md" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="activePoModal.set(false)">Cancel</button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Issue PO</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- THERMAL RECEIPT PRINT MODAL -->
+<div *ngIf="activeReceiptModal()" class="modal-overlay active">
+  <div class="modal-content glass-card receipt-card">
+    <div class="receipt-header">
+      <div class="receipt-logo"><i class="fa-solid fa-infinity"></i></div>
+      <h2>ERPInfinity Retail Store #101</h2>
+      <p>100 Commercial Hub, Business District</p>
+      <p>GSTIN: 27AAAAA0000A1Z5 | Ph: +91 22 4920 0000</p>
+      <div class="receipt-divider">------------------------------------------</div>
+      <div class="receipt-meta">
+        <span>{{ currentReceipt()?.invNum }}</span>
+        <span>{{ currentReceipt()?.date }}</span>
+      </div>
+      <div class="receipt-meta">
+        <span>Customer: <strong>{{ currentReceipt()?.customer }}</strong></span>
+        <span>Store: <strong>STORE-MUMBAI-01</strong></span>
+      </div>
+      <div class="receipt-divider">------------------------------------------</div>
+    </div>
+
+    <div class="receipt-body">
+      <table class="receipt-table">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Item</th>
+            <th style="text-align:center;">Qty</th>
+            <th style="text-align:right;">Price</th>
+            <th style="text-align:right;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of currentReceipt()?.items">
+            <td>{{ item.productName }}</td>
+            <td style="text-align:center;">{{ item.quantity }}</td>
+            <td style="text-align:right;">₹{{ item.sellingPrice.toFixed(2) }}</td>
+            <td style="text-align:right;">₹{{ (item.sellingPrice * item.quantity).toFixed(2) }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="receipt-divider">------------------------------------------</div>
+      <div class="receipt-totals">
+        <div class="r-row"><span>Subtotal:</span><span>₹{{ currentReceipt()?.subtotal?.toFixed(2) }}</span></div>
+        <div class="r-row"><span>GST Tax:</span><span>₹{{ currentReceipt()?.tax?.toFixed(2) }}</span></div>
+        <div class="r-row r-grand"><span>GRAND TOTAL:</span><span>₹{{ currentReceipt()?.grandTotal?.toFixed(2) }}</span></div>
+      </div>
+    </div>
+
+    <div class="receipt-footer">
+      <p>Thank you for shopping with ERPInfinity!</p>
+      <div class="receipt-btn-group">
+        <button class="btn btn-outline" (click)="printReceipt()"><i class="fa-solid fa-print"></i> Print</button>
+        <button class="btn btn-primary" (click)="activeReceiptModal.set(false)"><i class="fa-solid fa-check"></i> Done</button>
+      </div>
+    </div>
+  </div>
+</div>

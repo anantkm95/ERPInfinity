@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERPInfinity - Enterprise Microservices ERP & POS</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="dark-theme">
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- 0. LOGIN & REGISTRATION AUTH OVERLAY SCREEN -->
+    <div id="auth-screen" class="auth-overlay active">
+        <div class="auth-card glass-card">
+            <div class="auth-brand">
+                <div class="logo-icon-lg">
+                    <i class="fa-solid fa-infinity"></i>
+                </div>
+                <h1>ERPInfinity</h1>
+                <p>Enterprise Microservices ERP & POS Architecture v2.0</p>
+            </div>
+
+            <!-- Auth Mode Switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+                <button class="auth-tab" id="tab-register-btn" onclick="switchAuthTab('register')">
+                    <i class="fa-solid fa-user-plus"></i> Register Account
+                </button>
+            </div>
+
+            <!-- Express Quick Role Selection Demo -->
+            <div class="quick-role-section">
+                <span class="quick-role-title"><i class="fa-solid fa-bolt text-amber"></i> Quick Demo Persona Sign-In:</span>
+                <div class="role-cards-grid">
+                    <div class="role-demo-card" onclick="loginAsRole('CEO')">
+                        <div class="role-icon bg-emerald"><i class="fa-solid fa-crown"></i></div>
+                        <div class="role-info">
+                            <strong>Super Admin / CEO</strong>
+                            <span>Full Master Control & Executive Analytics</span>
+                        </div>
+                    </div>
+                    <div class="role-demo-card" onclick="loginAsRole('Admin')">
+                        <div class="role-icon bg-indigo"><i class="fa-solid fa-user-gear"></i></div>
+                        <div class="role-info">
+                            <strong>Enterprise Admin</strong>
+                            <span>Catalog, Inventory GRN & Procurement POs</span>
+                        </div>
+                    </div>
+                    <div class="role-demo-card" onclick="loginAsRole('Cashier')">
+                        <div class="role-icon bg-primary"><i class="fa-solid fa-cash-register"></i></div>
+                        <div class="role-info">
+                            <strong>POS Cashier Operator</strong>
+                            <span>Fast Counter Billing & Receipt Printing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form 1: LOGIN FORM -->
+            <form id="form-auth-login" onsubmit="handleLogin(event)" class="auth-form active">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-envelope"></i> Username or Email *</label>
+                    <input type="text" id="login-username" placeholder="e.g. admin.anant@erpinfinity.com" value="admin.anant@erpinfinity.com" required class="input-lg-auth">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-lock"></i> Password *</label>
+                    <input type="password" id="login-password" placeholder="••••••••" value="Admin@2026" required class="input-lg-auth">
+                </div>
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember-me" checked> Remember session
+                    </label>
+                    <a href="#" onclick="showToast('Password reset link sent to registered email.', 'info'); return false;" class="forgot-link">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login-submit">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In to ERPInfinity
+                </button>
+            </form>
+
+            <!-- Form 2: REGISTER FORM -->
+            <form id="form-auth-register" onsubmit="handleRegister(event)" class="auth-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="reg-name" placeholder="e.g. Vikramaditya Singh" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Username *</label>
+                        <input type="text" id="reg-username" placeholder="e.g. vikram.s" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address *</label>
+                        <input type="email" id="reg-email" placeholder="e.g. vikram@erpinfinity.com" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Assign System Role *</label>
+                        <select id="reg-role" class="select-md" required>
+                            <option value="Cashier">Cashier (POS Counter Operator)</option>
+                            <option value="Admin">Admin (Store & Inventory Manager)</option>
+                            <option value="CEO">CEO / Super Admin (Full Access)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" id="reg-password" placeholder="••••••••" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password *</label>
+                        <input type="password" id="reg-confirm-password" placeholder="••••••••" required class="input-md">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-emerald btn-block btn-lg" style="margin-top: 1rem;">
+                    <i class="fa-solid fa-user-check"></i> Register Account & Sign In
+                </button>
+            </form>
+            <div class="auth-footer">
+                <p><i class="fa-solid fa-shield-halved text-emerald"></i> Connected to Identity Microservice via YARP Gateway (`http://localhost:5001/api/v1/auth`)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="app-layout" id="main-app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-infinity"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ERPInfinity</h2>
+                    <span class="version-tag"><i class="fa-solid fa-bolt"></i> v2.0 Enterprise</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">RETAIL & CORE OPERATIONS</div>
+                <a href="#pos" class="nav-item active" data-tab="pos" id="nav-pos">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span>POS Counter & Billing</span>
+                    <span class="badge badge-emerald">Live</span>
+                </a>
+                <a href="#products" class="nav-item" data-tab="products" id="nav-products">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Product Master</span>
+                </a>
+                <a href="#inventory" class="nav-item" data-tab="inventory" id="nav-inventory">
+                    <i class="fa-solid fa-warehouse"></i>
+                    <span>Stock & Inventory</span>
+                    <span class="badge badge-amber" id="low-stock-count">Optimal</span>
+                </a>
+
+                <div class="nav-section-label">SUPPLY CHAIN & FINANCE</div>
+                <a href="#purchase" class="nav-item" data-tab="purchase" id="nav-purchase">
+                    <i class="fa-solid fa-truck-ramp-box"></i>
+                    <span>Procurement & POs</span>
+                </a>
+                <a href="#sales" class="nav-item" data-tab="sales" id="nav-sales">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Sales Analytics</span>
+                </a>
+                <a href="#customers" class="nav-item" data-tab="customers" id="nav-customers">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>Customers & CRM</span>
+                </a>
+
+                <div class="nav-section-label">INFRASTRUCTURE & SECURITY</div>
+                <a href="#identity" class="nav-item" data-tab="identity" id="nav-identity">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Identity & Security</span>
+                </a>
+                <a href="#gateway" class="nav-item" data-tab="gateway" id="nav-gateway">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>14 Services Health</span>
+                    <span class="badge badge-indigo">14 Nodes</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar" id="user-avatar-initials">AK</div>
+                    <div class="user-info">
+                        <span class="user-name" id="user-display-name">Anant Kumar</span>
+                        <span class="user-role" id="user-display-role"><i class="fa-solid fa-crown"></i> Super Admin</span>
+                    </div>
+                    <button class="logout-btn" id="btn-logout" title="Sign Out of Account" onclick="handleLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="global-search" placeholder="Search SKUs, Products, Barcodes, Invoices (Press '/' to focus)...">
+                </div>
+
+                <div class="header-actions">
+                    <div class="sound-toggle-btn" id="btn-toggle-sound" title="Toggle Scanner Beep Audio">
+                        <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+                    </div>
+
+                    <div class="status-indicator">
+                        <span class="pulse-dot"></span>
+                        <span class="status-text" id="api-status-text">Identity API & Gateway Connected</span>
+                    </div>
+
+                    <button class="btn btn-outline" id="btn-quick-scan">
+                        <i class="fa-solid fa-barcode"></i> Scan Test Barcode
+                    </button>
+
+                    <div class="store-selector">
+                        <i class="fa-solid fa-store"></i>
+                        <select id="active-store-select">
+                            <option value="WH-CENTRAL-01">Central Warehouse (WH-CENTRAL-01)</option>
+                            <option value="STORE-MUMBAI-01">Mumbai Supercenter #101</option>
+                            <option value="STORE-DELHI-02">Delhi Megastore #102</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic View Containers -->
+            <div class="view-container">
+
+                <!-- 1. POS COUNTER & BILLING TERMINAL -->
+                <section id="pos-view" class="tab-view active">
+                    <div class="pos-grid">
+                        <!-- Left: Barcode Scanner, Quick Items & Cart -->
+                        <div class="pos-cart-panel glass-card">
+                            <div class="panel-header">
+                                <div>
+                                    <h3><i class="fa-solid fa-cash-register text-emerald"></i> POS Billing Terminal #01</h3>
+                                    <span class="subtitle">Operator: <strong id="pos-operator-name">Anant Kumar</strong> | Shift ID: SH-8942</span>
+                                </div>
+                                <span class="session-badge"><i class="fa-solid fa-circle"></i> Register: OPEN</span>
+                            </div>
+
+                            <!-- Customer Selection Bar -->
+                            <div class="customer-bar">
+                                <div class="cust-info">
+                                    <i class="fa-solid fa-user-tag"></i>
+                                    <select id="pos-customer-select" class="select-sm">
+                                        <option value="CUST-WALKIN">Walk-in Customer (General)</option>
+                                        <option value="CUST-98201">Rahul Sharma (VIP Member - 420 Points)</option>
+                                        <option value="CUST-98202">Priya Patel (Corporate Account)</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-sm btn-outline" id="btn-add-customer-quick"><i class="fa-solid fa-user-plus"></i> New Cust</button>
+                            </div>
+
+                            <!-- Barcode Input Box -->
+                            <div class="barcode-input-wrapper">
+                                <i class="fa-solid fa-barcode barcode-icon"></i>
+                                <input type="text" id="pos-barcode-input" placeholder="Scan EAN Barcode (e.g. 8901058000101, 8901262010054) & press Enter..." autofocus>
+                                <button class="btn btn-primary" id="btn-pos-add"><i class="fa-solid fa-plus"></i> Add Item</button>
+                            </div>
+
+                            <!-- Quick Item Shortcut Chips -->
+                            <div class="quick-items-bar">
+                                <span class="quick-label"><i class="fa-solid fa-bolt"></i> Express Tap:</span>
+                                <button class="quick-chip" onclick="quickAddByBarcode('8901058000101')">🧂 Tata Salt 1kg (₹25)</button>
+                                <button class="quick-chip" onclick="quickAddByBarcode('8901262010054')">🧈 Amul Butter 500g (₹260)</button>
+                                <button class="quick-chip" onclick="quickAddByBarcode('8901058852311')">🍜 Maggi Noodles (₹50)</button>
+                                <button class="quick-chip" onclick="quickAddByBarcode('8901030678912')">🌻 Fortune Sunflower Oil (₹145)</button>
+                                <button class="quick-chip" onclick="quickAddByBarcode('8901014002105')">🍪 Britannia Good Day (₹30)</button>
+                            </div>
+
+                            <!-- Cart Data Table -->
+                            <div class="cart-table-container">
+                                <table class="data-table" id="pos-cart-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item Description</th>
+                                            <th>SKU Code</th>
+                                            <th>MRP</th>
+                                            <th>Price</th>
+                                            <th style="width: 90px;">Qty</th>
+                                            <th>GST %</th>
+                                            <th>Total</th>
+                                            <th style="text-align: center;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pos-cart-body">
+                                        <!-- Dynamic Cart Rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right: Payment & Summary -->
+                        <div class="pos-summary-panel glass-card">
+                            <h3><i class="fa-solid fa-receipt text-indigo"></i> Payment & Checkout</h3>
+                            
+                            <div class="summary-list">
+                                <div class="summary-row">
+                                    <span>Items Count</span>
+                                    <span id="pos-items-count" class="badge badge-indigo">0 Items</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span id="pos-subtotal">₹0.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Estimated GST / Tax</span>
+                                    <span id="pos-tax" class="text-emerald">₹0.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Discount (₹)</span>
+                                    <input type="number" id="pos-discount" value="0.00" min="0" step="1.00" class="inline-input-lg">
+                                </div>
+                                <div class="summary-row total-row">
+                                    <span>Total Payable</span>
+                                    <span id="pos-grand-total" class="text-accent">₹0.00</span>
+                                </div>
+                            </div>
+
+                            <div class="payment-mode-selector">
+                                <label><i class="fa-solid fa-wallet"></i> Payment Method</label>
+                                <div class="payment-btn-group">
+                                    <button class="pay-btn active" data-mode="CASH"><i class="fa-solid fa-money-bill-wave"></i> Cash</button>
+                                    <button class="pay-btn" data-mode="UPI"><i class="fa-solid fa-qrcode"></i> UPI / QR</button>
+                                    <button class="pay-btn" data-mode="CARD"><i class="fa-regular fa-credit-card"></i> Card</button>
+                                </div>
+                            </div>
+
+                            <div class="cash-tendered-group">
+                                <label><i class="fa-solid fa-hand-holding-dollar"></i> Cash Tendered</label>
+                                <input type="number" id="pos-cash-tendered" placeholder="0.00" class="input-lg">
+                                <div class="change-due">Change Due: <strong id="pos-change-due" class="text-emerald">₹0.00</strong></div>
+                            </div>
+
+                            <button class="btn btn-emerald btn-block btn-lg" id="btn-complete-checkout">
+                                <i class="fa-solid fa-circle-check"></i> Complete Transaction & Print Receipt
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. PRODUCT MASTER CATALOG -->
+                <section id="products-view" class="tab-view">
+                    <div class="view-header">
+                        <div>
+                            <h2><i class="fa-solid fa-boxes-stacked text-primary"></i> Product Master Catalog</h2>
+                            <p>Manage product catalog, EAN barcodes, SKU pricing, HSN codes, and GST rates.</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-open-add-product-modal">
+                            <i class="fa-solid fa-plus"></i> Add New Product
+                        </button>
+                    </div>
+
+                    <div class="filter-bar glass-card">
+                        <div class="filter-search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="product-search-input" placeholder="Filter by product name, barcode, or SKU...">
+                        </div>
+                        <div class="filter-pills">
+                            <button class="pill active" data-category="ALL">All Categories</button>
+                            <button class="pill" data-category="Grocery">Grocery</button>
+                            <button class="pill" data-category="Dairy">Dairy</button>
+                            <button class="pill" data-category="Packaged Food">Packaged Food</button>
+                            <button class="pill" data-category="Personal Care">Personal Care</button>
+                        </div>
+                    </div>
+
+                    <div class="product-cards-grid" id="product-list-grid">
+                        <!-- Dynamic Product Cards -->
+                    </div>
+                </section>
+
+                <!-- 3. INVENTORY & STOCK LEDGER -->
+                <section id="inventory-view" class="tab-view">
+                    <div class="view-header">
+                        <div>
+                            <h2><i class="fa-solid fa-warehouse text-amber"></i> Inventory & Live Stock Ledger</h2>
+                            <p>Real-time stock balance across Central Warehouse & Retail Stores (`sp_DeductInventoryForPOS`).</p>
+                        </div>
+                        <div class="header-btn-group">
+                            <button class="btn btn-amber" id="btn-open-grn-modal">
+                                <i class="fa-solid fa-arrow-down-to-bracket"></i> Receive Stock (GRN)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="stats-overview">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-emerald"><i class="fa-solid fa-cubes"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="stat-total-stock">1,720 Units</span>
+                                <span class="stat-label">Total Stock On Hand</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-indigo"><i class="fa-solid fa-check-double"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="stat-available-stock">1,720 Units</span>
+                                <span class="stat-label">Available for Sale</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="stat-low-stock-count">0 SKUs</span>
+                                <span class="stat-label">Low Stock Alerts</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-primary"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="stat-stock-valuation">₹2,14,500</span>
+                                <span class="stat-label">Total Inventory Value</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card table-card">
+                        <div class="table-header-flex">
+                            <h3><i class="fa-solid fa-list-check"></i> Live Stock Ledger</h3>
+                            <div class="table-actions">
+                                <select id="inventory-location-filter" class="select-sm">
+                                    <option value="ALL">All Warehouses & Stores</option>
+                                    <option value="WH-CENTRAL-01">WH-CENTRAL-01 (Central Hub)</option>
+                                    <option value="STORE-MUMBAI-01">STORE-MUMBAI-01 (Retail)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Location</th>
+                                    <th>SKU Code</th>
+                                    <th>Product Name</th>
+                                    <th>On Hand</th>
+                                    <th>Reserved</th>
+                                    <th>Available</th>
+                                    <th>Reorder Point</th>
+                                    <th>Stock Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-stock-body">
+                                <!-- Dynamic Inventory Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 4. PURCHASE ORDERS -->
+                <section id="purchase-view" class="tab-view">
+                    <div class="view-header">
+                        <div>
+                            <h2><i class="fa-solid fa-truck-ramp-box text-primary"></i> Procurement & Purchase Orders</h2>
+                            <p>Vendor orders lifecycle (`sp_CreatePurchaseOrder` & `sp_ApprovePurchaseOrder`).</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-open-po-modal">
+                            <i class="fa-solid fa-file-invoice"></i> Create Purchase Order
+                        </button>
+                    </div>
+
+                    <div class="glass-card table-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>PO Number</th>
+                                    <th>Supplier Name</th>
+                                    <th>Destination Warehouse</th>
+                                    <th>Status</th>
+                                    <th>Total Amount</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="po-list-body">
+                                <!-- Dynamic PO Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 5. SALES ANALYTICS -->
+                <section id="sales-view" class="tab-view">
+                    <div class="view-header">
+                        <div>
+                            <h2><i class="fa-solid fa-chart-line text-emerald"></i> Sales Analytics & Executive Dashboard</h2>
+                            <p>Real-time billing statistics and counter revenue breakdown (`vw_DailyStoreSalesSummary`).</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-overview">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-emerald"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="analytics-total-sales">₹4,320.00</span>
+                                <span class="stat-label">Today's Total Sales</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-indigo"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="analytics-invoice-count">12 Invoices</span>
+                                <span class="stat-label">Invoices Generated</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-primary"><i class="fa-solid fa-basket-shopping"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="analytics-aov">₹360.00</span>
+                                <span class="stat-label">Average Order Value (AOV)</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-amber"><i class="fa-solid fa-percent"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value" id="analytics-gst-collected">₹216.00</span>
+                                <span class="stat-label">Total GST Collected</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Sales Invoices Log -->
+                    <div class="glass-card table-card" style="margin-top: 1.5rem;">
+                        <h3><i class="fa-solid fa-receipt"></i> Recent Completed Sales Invoices</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice No.</th>
+                                    <th>Customer</th>
+                                    <th>Date & Time</th>
+                                    <th>Items</th>
+                                    <th>Payment Mode</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-invoices-body">
+                                <!-- Dynamic Sales Invoices -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 6. CUSTOMERS & CRM -->
+                <section id="customers-view" class="tab-view">
+                    <div class="view-header">
+                        <div>
+                            <h2><i class="fa-solid fa-users-gear text-indigo"></i> Customer Master & CRM</h2>
+                            <p>Manage customer accounts, loyalty reward points, and credit accounts.</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-customer-modal-trigger">
+                            <i class="fa-solid fa-user-plus"></i> Register Customer
+                        </button>
+                    </div>
+
+                    <div class="glass-card table-card">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Full Name</th>
+                                    <th>Phone Number</th>
+                                    <th>Email</th>
+                                    <th>Loyalty Points</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-list-body">
+                                <tr>
+                                    <td><code>CUST-98201</code></td>
+                                    <td><strong>Rahul Sharma</strong></td>
+                                    <td>+91 98201 12345</td>
+                                    <td>rahul.s@example.com</td>
+                                    <td><span class="badge badge-emerald">420 Points</span></td>
+                                    <td><span class="badge badge-indigo">VIP Silver</span></td>
+                                    <td><button class="btn btn-sm btn-outline">History</button></td>
+                                </tr>
+                                <tr>
+                                    <td><code>CUST-98202</code></td>
+                                    <td><strong>Priya Patel</strong></td>
+                                    <td>+91 98202 54321</td>
+                                    <td>priya.p@corp.com</td>
+                                    <td><span class="badge badge-emerald">1,250 Points</span></td>
+                                    <td><span class="badge badge-amber">Corporate Gold</span></td>
+                                    <td><button class="btn btn-sm btn-outline">History</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 7. IDENTITY & SECURITY MATRIX -->
+                <section id="identity-view" class="tab-view">
+                    <div class="view-header">
+                        <div>
+                            <h2><i class="fa-solid fa-user-shield text-emerald"></i> Identity & Access Management (IAM)</h2>
+                            <p>User accounts, System Roles, and Granular Permission Matrix (`vw_UserSecurityProfile`).</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card table-card">
+                        <h3><i class="fa-solid fa-users"></i> System Accounts & Role Access Matrix</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email Address</th>
+                                    <th>Assigned Role</th>
+                                    <th>Status</th>
+                                    <th>Permissions Granted</th>
+                                </tr>
+                            </thead>
+                            <tbody id="iam-users-body">
+                                <tr>
+                                    <td><strong>admin.anant</strong></td>
+                                    <td>anant@erpinfinity.com</td>
+                                    <td><span class="badge badge-indigo">CEO / SuperAdmin</span></td>
+                                    <td><span class="badge badge-emerald">Active</span></td>
+                                    <td><code>*.* (Full Master Access)</code></td>
+                                </tr>
+                                <tr>
+                                    <td>admin.mumbai</td>
+                                    <td>admin.mumbai@erpinfinity.com</td>
+                                    <td><span class="badge badge-indigo">Admin</span></td>
+                                    <td><span class="badge badge-emerald">Active</span></td>
+                                    <td><code>Product.*, Inventory.*, Purchase.*</code></td>
+                                </tr>
+                                <tr>
+                                    <td>cashier.counter1</td>
+                                    <td>cashier1@erpinfinity.com</td>
+                                    <td><span class="badge badge-amber">Cashier</span></td>
+                                    <td><span class="badge badge-emerald">Active</span></td>
+                                    <td><code>Sales.Create, POS.Scan, Customer.Read</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 8. SERVICES HEALTH MONITOR -->
+                <section id="gateway-view" class="tab-view">
+                    <div class="view-header">
+                        <div>
+                            <h2><i class="fa-solid fa-network-wired text-primary"></i> 14 Microservices & Gateway Topology</h2>
+                            <p>Real-time machine-to-machine health check monitoring across the distributed microservices backend.</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-refresh-health">
+                            <i class="fa-solid fa-rotate"></i> Refresh Health Checks
+                        </button>
+                    </div>
+
+                    <!-- Microservice Outbox & Pipeline Overview -->
+                    <div class="stats-overview" style="margin-bottom: 1.5rem;">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-emerald"><i class="fa-solid fa-server"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value">14 / 14</span>
+                                <span class="stat-label">Microservices Operational</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-indigo"><i class="fa-solid fa-database"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value">MSSQLSERVER01</span>
+                                <span class="stat-label">SQL Server 2022 Instance</span>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon bg-amber"><i class="fa-solid fa-leaf"></i></div>
+                            <div class="stat-data">
+                                <span class="stat-value">MongoDB CQRS</span>
+                                <span class="stat-label">Read Model Projection</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="services-health-grid" id="services-health-grid">
+                        <!-- Dynamic Health Cards -->
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL 1: ADD NEW PRODUCT MODAL -->
+    <div class="modal-overlay" id="add-product-modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-box-open text-primary"></i> Add New Product to Catalog</h3>
+                <button class="modal-close" onclick="closeModal('add-product-modal')">&times;</button>
+            </div>
+            <form id="form-add-product" onsubmit="handleAddNewProduct(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="new-prod-name" placeholder="e.g. Fortune Refined Sunflower Oil 1L" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="new-prod-cat" required class="select-md">
+                            <option value="Grocery">Grocery</option>
+                            <option value="Dairy">Dairy</option>
+                            <option value="Packaged Food">Packaged Food</option>
+                            <option value="Personal Care">Personal Care</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>EAN Barcode *</label>
+                        <input type="text" id="new-prod-barcode" placeholder="e.g. 8901030678912" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>SKU Code *</label>
+                        <input type="text" id="new-prod-sku" placeholder="e.g. SKU-FORTUNE-OIL-1L" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>MRP (₹) *</label>
+                        <input type="number" step="0.01" id="new-prod-mrp" placeholder="160.00" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Selling Price (₹) *</label>
+                        <input type="number" step="0.01" id="new-prod-price" placeholder="145.00" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>GST Rate % *</label>
+                        <select id="new-prod-tax" class="select-md">
+                            <option value="0">0% (Exempt)</option>
+                            <option value="5" selected>5% GST</option>
+                            <option value="12">12% GST</option>
+                            <option value="18">18% GST</option>
+                            <option value="28">28% GST</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>HSN Code</label>
+                        <input type="text" id="new-prod-hsn" placeholder="e.g. 15121910" value="15121910" class="input-md">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('add-product-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: RECEIVE GRN STOCK MODAL -->
+    <div class="modal-overlay" id="grn-modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-arrow-down-to-bracket text-amber"></i> Receive Goods Receipt Note (GRN)</h3>
+                <button class="modal-close" onclick="closeModal('grn-modal')">&times;</button>
+            </div>
+            <form id="form-receive-grn" onsubmit="handleReceiveGRN(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Select Product *</label>
+                        <select id="grn-product-select" required class="select-md">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Warehouse / Location *</label>
+                        <select id="grn-location-select" required class="select-md">
+                            <option value="WH-CENTRAL-01">WH-CENTRAL-01 (Central Warehouse)</option>
+                            <option value="STORE-MUMBAI-01">STORE-MUMBAI-01 (Mumbai Retail)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity Received *</label>
+                        <input type="number" id="grn-quantity" min="1" value="100" required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier PO Reference</label>
+                        <input type="text" id="grn-po-ref" value="PO-20260912-48201" class="input-md">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('grn-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-amber"><i class="fa-solid fa-plus"></i> Post GRN Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CREATE PO MODAL -->
+    <div class="modal-overlay" id="po-modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-circle-plus text-primary"></i> Issue Purchase Order to Vendor</h3>
+                <button class="modal-close" onclick="closeModal('po-modal')">&times;</button>
+            </div>
+            <form id="form-create-po" onsubmit="handleCreatePO(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Supplier Name *</label>
+                        <input type="text" id="po-vendor" placeholder="e.g. Tata Consumer Products Ltd." required class="input-md">
+                    </div>
+                    <div class="form-group">
+                        <label>Destination Warehouse *</label>
+                        <select id="po-warehouse" class="select-md">
+                            <option value="WH-CENTRAL-01">WH-CENTRAL-01 (Central Hub)</option>
+                            <option value="STORE-MUMBAI-01">STORE-MUMBAI-01</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Order Amount (₹) *</label>
+                        <input type="number" step="0.01" id="po-amount" placeholder="25000.00" required class="input-md">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('po-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Issue PO</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: RECEIPT PRINTING MODAL -->
+    <div class="modal-overlay" id="receipt-modal">
+        <div class="modal-content glass-card receipt-card">
+            <div class="receipt-header">
+                <div class="receipt-logo"><i class="fa-solid fa-infinity"></i></div>
+                <h2>ERPInfinity Retail Store #101</h2>
+                <p>100 Commercial Hub, Business District</p>
+                <p>GSTIN: 27AAAAA0000A1Z5 | Ph: +91 22 4920 0000</p>
+                <div class="receipt-divider">------------------------------------------</div>
+                <div class="receipt-meta">
+                    <span id="rec-inv-num">INV-20260912-100293</span>
+                    <span id="rec-date">12/09/2026 12:30 PM</span>
+                </div>
+                <div class="receipt-meta">
+                    <span>Customer: <strong id="rec-customer-name">Walk-in</strong></span>
+                    <span>Store: <strong>STORE-MUMBAI-01</strong></span>
+                </div>
+                <div class="receipt-divider">------------------------------------------</div>
+            </div>
+
+            <div class="receipt-body">
+                <table class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Item</th>
+                            <th style="text-align:center;">Qty</th>
+                            <th style="text-align:right;">Price</th>
+                            <th style="text-align:right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rec-items-body">
+                        <!-- Receipt Items -->
+                    </tbody>
+                </table>
+
+                <div class="receipt-divider">------------------------------------------</div>
+                <div class="receipt-totals">
+                    <div class="r-row"><span>Subtotal:</span><span id="rec-subtotal">₹0.00</span></div>
+                    <div class="r-row"><span>Total GST / Tax:</span><span id="rec-tax">₹0.00</span></div>
+                    <div class="r-row"><span>Discount Applied:</span><span id="rec-discount">₹0.00</span></div>
+                    <div class="r-row r-grand"><span>GRAND TOTAL:</span><span id="rec-grand">₹0.00</span></div>
+                    <div class="r-row"><span>Payment Method:</span><span id="rec-mode">CASH</span></div>
+                </div>
+                <div class="receipt-divider">------------------------------------------</div>
+            </div>
+
+            <div class="receipt-footer">
+                <p>Thank you for shopping with ERPInfinity!</p>
+                <p class="receipt-small">GST Invoice generated automatically via ERPInfinity Microservices</p>
+                <div class="receipt-btn-group">
+                    <button class="btn btn-outline" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
+                    <button class="btn btn-primary" onclick="closeModal('receipt-modal')"><i class="fa-solid fa-check"></i> Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript App -->
+    <script src="app.js"></script>
+</body>
+</html>
